@@ -1,0 +1,45 @@
+{
+  "flood": {
+    "gateway": {
+      "status": {
+        "gateway_id": "GW_01",
+        "last_activity": 25,
+        "total_failed": 0,
+        "total_received": 2,
+        "wifi_rssi": -64
+      }
+    },
+    "nodes": {
+      "N1": {
+        "history": {
+          "-OljzkA0mcJyN6mNjAT1": {
+            "rssi_gw": -44,
+            "snr_gw": 13.75,
+            "ts": 20,
+            "water_level_cm": 46.5
+          },
+          "-OljzlCAis2AmEHk9Fqr": {
+            "rssi_gw": -44,
+            "snr_gw": 13.25,
+            "ts": 24,
+            "water_level_cm": 50.1
+          },
+          "-Oljzt030gvC5LVgS_QF": {
+            "rssi_gw": -44,
+            "snr_gw": 12.5,
+            "ts": 55,
+            "water_level_cm": 47.4
+          }
+        },
+        "latest": {
+          "gateway_id": "GW_01",
+          "pkt_count": 4,
+          "rssi_gw": -44,
+          "snr_gw": 12.5,
+          "timestamp": 37,
+          "water_level_cm": 47.4
+        }
+      }
+    }
+  }
+}
