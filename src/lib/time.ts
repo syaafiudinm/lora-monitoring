@@ -6,6 +6,21 @@
  * and we want to display "04:52" — not whatever the browser's TZ gives us.
  */
 
+/** Timeout in ms — if the gateway hasn't reported in this long, it's offline */
+const GATEWAY_TIMEOUT_MS = 2 * 60 * 1000; // 2 minutes
+
+/**
+ * Check whether a gateway is online based on its timestamp_iso string.
+ * Parses the ISO string (which includes timezone offset like +07:00)
+ * and compares to Date.now(). Returns true if within last 2 minutes.
+ */
+export function isGatewayOnline(timestampIso?: string): boolean {
+  if (!timestampIso) return false;
+  const lastSeen = new Date(timestampIso).getTime();
+  if (isNaN(lastSeen)) return false;
+  return Date.now() - lastSeen <= GATEWAY_TIMEOUT_MS;
+}
+
 /**
  * Extract HH:MM from an ISO 8601 string, preserving the original timezone.
  *

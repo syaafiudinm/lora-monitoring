@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import type { Gateway as GatewayData } from "../types";
 import {
   Activity,
@@ -7,13 +8,20 @@ import {
   Globe,
   Clock,
 } from "lucide-react";
-import { formatIsoDateTime } from "@/lib/time";
+import { formatIsoDateTime, isGatewayOnline } from "@/lib/time";
 
 interface GatewayStatusProps {
   gateway: GatewayData | null;
 }
 
 export function GatewayStatus({ gateway }: GatewayStatusProps) {
+  // Tick every 10 seconds so the online/offline status stays fresh
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const interval = setInterval(() => setTick((t) => t + 1), 10_000);
+    return () => clearInterval(interval);
+  }, []);
+
   if (!gateway) {
     return (
       <div className="bg-white border border-green-100 rounded-xl shadow-sm">
@@ -24,7 +32,7 @@ export function GatewayStatus({ gateway }: GatewayStatusProps) {
     );
   }
 
-  const isOnline = gateway.status === "ONLINE";
+  const isOnline = isGatewayOnline(gateway.timestamp_iso);
 
   const lastSeen = formatIsoDateTime(
     gateway.timestamp_iso,
@@ -45,7 +53,7 @@ export function GatewayStatus({ gateway }: GatewayStatusProps) {
   const stats = [
     {
       label: "Status",
-      value: gateway.status ?? "—",
+      value: isOnline ? "ONLINE" : "OFFLINE",
       icon: isOnline ? (
         <CheckCircle className="w-4 h-4 text-green-500" />
       ) : (

@@ -11,6 +11,7 @@ import { GatewayStatus } from "./GatewayStatus";
 import { WaterLevelCard } from "./WaterLevelCard";
 import { HistoryChart } from "./HistoryChart";
 import { AlertTriangle, RefreshCw } from "lucide-react";
+import { isGatewayOnline } from "@/lib/time";
 
 interface NodeState {
   latest: NodeLatest | null;
@@ -23,6 +24,13 @@ export function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
+
+  // Tick every 10 seconds so gateway online/offline status stays fresh
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const interval = setInterval(() => setTick((t) => t + 1), 10_000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Track per-node unsubscribe functions so we can clean up
   const nodeUnsubs = useRef<Record<string, (() => void)[]>>({});
@@ -209,7 +217,7 @@ export function Dashboard() {
     ([, state]) => state && typeof state === "object",
   );
 
-  const isOnline = gateway?.status === "ONLINE";
+  const isOnline = isGatewayOnline(gateway?.timestamp_iso);
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-800">

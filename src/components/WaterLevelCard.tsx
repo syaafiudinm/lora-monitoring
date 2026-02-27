@@ -40,9 +40,9 @@ const STATUS_CONFIG = {
 } as const;
 
 function getStatus(level: number): keyof typeof STATUS_CONFIG {
-  if (level > 300) return "CRITICAL";
-  if (level > 200) return "WARNING";
-  if (level > 100) return "MODERATE";
+  if (level < 50) return "CRITICAL";
+  if (level < 200) return "WARNING";
+  if (level > 300) return "MODERATE";
   return "NORMAL";
 }
 
