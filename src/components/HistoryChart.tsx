@@ -1,47 +1,312 @@
 import type { HistoryRecord } from "../types";
 import { BarChart2, TrendingUp, TrendingDown, Minus } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { useMemo, useState, useCallback } from "react";
+import Chart from "react-apexcharts";
+import type { ApexOptions } from "apexcharts";
+import { formatIsoTime, extractIsoHour, extractIsoDate } from "@/lib/time";
 
 interface HistoryChartProps {
   history: HistoryRecord[];
   nodeId: string;
 }
 
+type ViewMode = "default" | "hourly";
+
+interface HourlyDataPoint {
+  label: string;
+  avg: number;
+  min: number;
+  max: number;
+  count: number;
+  sortKey: string;
+}
+
+const MIN_PX_PER_POINT = 60;
+const MIN_CHART_WIDTH = 400;
+
 export function HistoryChart({ history, nodeId }: HistoryChartProps) {
+  const [viewMode, setViewMode] = useState<ViewMode>("default");
+
+  const handleViewChange = useCallback((mode: ViewMode) => {
+    setViewMode(mode);
+  }, []);
+
+  // Sort all history by timestamp_epoch ascending
+  const sortedHistory = useMemo(
+    () => [...history].sort((a, b) => a.timestamp_epoch - b.timestamp_epoch),
+    [history],
+  );
+
+  // Aggregate data into hourly buckets
+  const hourlyData = useMemo<HourlyDataPoint[]>(() => {
+    if (sortedHistory.length === 0) return [];
+
+    const buckets = new Map<
+      string,
+      {
+        sum: number;
+        min: number;
+        max: number;
+        count: number;
+        date: string;
+        hour: number;
+      }
+    >();
+
+    for (const r of sortedHistory) {
+      const date = extractIsoDate(r.timestamp_iso, r.timestamp_epoch);
+      const hour = extractIsoHour(r.timestamp_iso, r.timestamp_epoch);
+      const key = `${date}-${String(hour).padStart(2, "0")}`;
+
+      const existing = buckets.get(key);
+      if (existing) {
+        existing.sum += r.water_level_cm;
+        existing.min = Math.min(existing.min, r.water_level_cm);
+        existing.max = Math.max(existing.max, r.water_level_cm);
+        existing.count += 1;
+      } else {
+        buckets.set(key, {
+          sum: r.water_level_cm,
+          min: r.water_level_cm,
+          max: r.water_level_cm,
+          count: 1,
+          date,
+          hour,
+        });
+      }
+    }
+
+    const points: HourlyDataPoint[] = [];
+    for (const [key, bucket] of buckets) {
+      const dateParts = bucket.date.match(/(\d{4})-(\d{2})-(\d{2})/);
+      const dayMonth = dateParts
+        ? `${dateParts[3]}/${dateParts[2]}`
+        : bucket.date;
+      const hourStr = String(bucket.hour).padStart(2, "0");
+
+      points.push({
+        label: `${dayMonth} ${hourStr}:00`,
+        avg: parseFloat((bucket.sum / bucket.count).toFixed(1)),
+        min: parseFloat(bucket.min.toFixed(1)),
+        max: parseFloat(bucket.max.toFixed(1)),
+        count: bucket.count,
+        sortKey: key,
+      });
+    }
+
+    points.sort((a, b) => a.sortKey.localeCompare(b.sortKey));
+    return points;
+  }, [sortedHistory]);
+
+  // ── Derived data based on view mode ──
+
+  const categories = useMemo(() => {
+    if (viewMode === "hourly") {
+      return hourlyData.map((d) => d.label);
+    }
+    return sortedHistory.map((r) =>
+      formatIsoTime(r.timestamp_iso, r.timestamp_epoch),
+    );
+  }, [viewMode, hourlyData, sortedHistory]);
+
+  const seriesData = useMemo(() => {
+    if (viewMode === "hourly") {
+      return hourlyData.map((d) => d.avg);
+    }
+    return sortedHistory.map((r) => parseFloat(r.water_level_cm.toFixed(1)));
+  }, [viewMode, hourlyData, sortedHistory]);
+
+  const dataLength =
+    viewMode === "hourly" ? hourlyData.length : sortedHistory.length;
+
+  // Stats
+  const { maxLevel, minLevel, avgLevel } = useMemo(() => {
+    if (viewMode === "hourly") {
+      if (hourlyData.length === 0)
+        return { maxLevel: 0, minLevel: 0, avgLevel: 0 };
+      const max = Math.max(...hourlyData.map((h) => h.max));
+      const min = Math.min(...hourlyData.map((h) => h.min));
+      const avg = hourlyData.reduce((s, h) => s + h.avg, 0) / hourlyData.length;
+      return {
+        maxLevel: parseFloat(max.toFixed(1)),
+        minLevel: parseFloat(min.toFixed(1)),
+        avgLevel: parseFloat(avg.toFixed(1)),
+      };
+    }
+    if (sortedHistory.length === 0)
+      return { maxLevel: 0, minLevel: 0, avgLevel: 0 };
+    const max = Math.max(...sortedHistory.map((h) => h.water_level_cm));
+    const min = Math.min(...sortedHistory.map((h) => h.water_level_cm));
+    const avg =
+      sortedHistory.reduce((s, h) => s + h.water_level_cm, 0) /
+      sortedHistory.length;
+    return {
+      maxLevel: parseFloat(max.toFixed(1)),
+      minLevel: parseFloat(min.toFixed(1)),
+      avgLevel: parseFloat(avg.toFixed(1)),
+    };
+  }, [viewMode, hourlyData, sortedHistory]);
+
+  // Trend
+  const trend = useMemo(() => {
+    if (viewMode === "hourly") {
+      if (hourlyData.length < 2) return 0;
+      const mid = Math.floor(hourlyData.length / 2);
+      const firstAvg =
+        hourlyData.slice(0, mid).reduce((s, h) => s + h.avg, 0) / mid;
+      const secondAvg =
+        hourlyData.slice(mid).reduce((s, h) => s + h.avg, 0) /
+        (hourlyData.length - mid);
+      return secondAvg - firstAvg;
+    }
+    if (sortedHistory.length < 2) return 0;
+    const mid = Math.floor(sortedHistory.length / 2);
+    const firstAvg =
+      sortedHistory.slice(0, mid).reduce((s, h) => s + h.water_level_cm, 0) /
+      mid;
+    const secondAvg =
+      sortedHistory.slice(mid).reduce((s, h) => s + h.water_level_cm, 0) /
+      (sortedHistory.length - mid);
+    return secondAvg - firstAvg;
+  }, [viewMode, hourlyData, sortedHistory]);
+
+  // Chart width
+  const chartWidth = useMemo(() => {
+    const calculated = dataLength * MIN_PX_PER_POINT;
+    return Math.max(calculated, MIN_CHART_WIDTH);
+  }, [dataLength]);
+
+  // Chart options
+  const chartOptions = useMemo<ApexOptions>(
+    () => ({
+      chart: {
+        type: "line",
+        height: 280,
+        toolbar: { show: false },
+        zoom: { enabled: false },
+        fontFamily: "inherit",
+        animations: {
+          enabled: true,
+          easing: "easeinout",
+          speed: 400,
+        },
+      },
+      title: { text: undefined },
+      dataLabels: { enabled: false },
+      colors: ["#16a34a"],
+      stroke: {
+        lineCap: "round",
+        curve: "smooth",
+        width: 3,
+      },
+      markers: {
+        size: dataLength <= 30 ? 4 : dataLength <= 60 ? 2 : 0,
+        strokeWidth: 0,
+        hover: { size: 7, sizeOffset: 3 },
+      },
+      xaxis: {
+        axisTicks: { show: false },
+        axisBorder: { show: false },
+        labels: {
+          style: {
+            colors: "#616161",
+            fontSize: "11px",
+            fontFamily: "inherit",
+            fontWeight: 400,
+          },
+          rotate: -45,
+          rotateAlways: dataLength > 6,
+        },
+        categories,
+        tooltip: { enabled: false },
+      },
+      yaxis: {
+        min: 0,
+        max: 300,
+        tickAmount: 5,
+        labels: {
+          style: {
+            colors: "#616161",
+            fontSize: "12px",
+            fontFamily: "inherit",
+            fontWeight: 400,
+          },
+          formatter: (val: number) => `${val.toFixed(0)}`,
+        },
+        title: {
+          text: "cm",
+          style: {
+            color: "#9ca3af",
+            fontSize: "12px",
+            fontWeight: 400,
+          },
+        },
+      },
+      grid: {
+        show: true,
+        borderColor: "#e5e7eb",
+        strokeDashArray: 5,
+        xaxis: { lines: { show: true } },
+        padding: { top: 5, right: 20 },
+      },
+      fill: { opacity: 0.8 },
+      tooltip:
+        viewMode === "hourly"
+          ? {
+              theme: "dark",
+              custom: ({
+                dataPointIndex,
+              }: {
+                series: number[][];
+                seriesIndex: number;
+                dataPointIndex: number;
+                w: unknown;
+              }) => {
+                const point = hourlyData[dataPointIndex];
+                if (!point) return "";
+                return `
+                  <div style="padding: 8px 12px; font-size: 12px; line-height: 1.6;">
+                    <div style="font-weight: 600; margin-bottom: 4px;">${point.label}</div>
+                    <div>Avg: <b>${point.avg} cm</b></div>
+                    <div>Min: ${point.min} cm · Max: ${point.max} cm</div>
+                    <div style="color: #9ca3af; margin-top: 2px;">${point.count} reading${point.count > 1 ? "s" : ""}</div>
+                  </div>
+                `;
+              },
+            }
+          : {
+              theme: "dark",
+              y: {
+                formatter: (val: number) => `${val.toFixed(1)} cm`,
+              },
+            },
+    }),
+    [categories, dataLength, viewMode, hourlyData],
+  );
+
+  const series = useMemo(
+    () => [
+      {
+        name: viewMode === "hourly" ? "Avg Water Level" : "Water Level",
+        data: seriesData,
+      },
+    ],
+    [seriesData, viewMode],
+  );
+
+  // Early return AFTER all hooks
   if (history.length === 0) {
     return (
-      <Card className="bg-white border-green-100">
-        <CardContent className="pt-6">
+      <div className="bg-white border border-green-100 rounded-xl shadow-sm">
+        <div className="px-6 pt-6 pb-6">
           <div className="flex flex-col items-center justify-center h-32 text-gray-300">
             <BarChart2 className="w-8 h-8 mb-2" />
             <p className="text-sm">No history data available</p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     );
   }
-
-  // Sort by `ts` field (history uses ts, not timestamp)
-  const sortedHistory = [...history].sort((a, b) => a.ts - b.ts);
-  const last24 = sortedHistory.slice(-24);
-
-  const maxLevel = Math.max(...last24.map((h) => h.water_level_cm));
-  const minLevel = Math.min(...last24.map((h) => h.water_level_cm));
-  const avgLevel =
-    last24.reduce((s, h) => s + h.water_level_cm, 0) / last24.length;
-  const range = maxLevel - minLevel || 1;
-
-  // Trend
-  const firstHalf = last24.slice(0, Math.floor(last24.length / 2));
-  const secondHalf = last24.slice(Math.floor(last24.length / 2));
-  const firstAvg =
-    firstHalf.reduce((s, h) => s + h.water_level_cm, 0) /
-    (firstHalf.length || 1);
-  const secondAvg =
-    secondHalf.reduce((s, h) => s + h.water_level_cm, 0) /
-    (secondHalf.length || 1);
-  const trend = secondAvg - firstAvg;
 
   const TrendIcon = trend > 2 ? TrendingUp : trend < -2 ? TrendingDown : Minus;
   const trendColor =
@@ -51,113 +316,137 @@ export function HistoryChart({ history, nodeId }: HistoryChartProps) {
         ? "text-green-500"
         : "text-gray-400";
 
+  const needsScroll = chartWidth > MIN_CHART_WIDTH;
+
+  const subtitle =
+    viewMode === "hourly"
+      ? "Hourly average water level"
+      : "Water level history over time";
+
+  const readingLabel =
+    viewMode === "hourly"
+      ? `${hourlyData.length} hours · ${history.length} readings`
+      : `${history.length} readings`;
+
   return (
-    <Card className="bg-white border-green-100 shadow-sm">
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-sm font-semibold text-gray-500 uppercase tracking-wider flex items-center gap-2">
-            <BarChart2 className="w-4 h-4 text-green-500" />
-            {nodeId}
-          </CardTitle>
-          <Badge
-            variant="outline"
-            className="border-green-200 text-gray-500 bg-green-50"
+    <div className="bg-white border border-green-100 shadow-md rounded-xl">
+      {/* Header */}
+      <div className="px-6 pt-6 pb-0">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div>
+              <div className="text-base font-semibold text-gray-900">
+                {nodeId.replace("_", " ")}
+              </div>
+              <p className="text-sm font-normal text-gray-500">{subtitle}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center rounded-full border border-green-200 text-gray-500 bg-green-50 px-2 py-0.5 text-xs font-medium w-fit">
+              <TrendIcon className={`w-3 h-3 mr-1 ${trendColor}`} />
+              {trend > 0 ? "+" : ""}
+              {trend.toFixed(1)} cm trend
+            </span>
+            <span className="inline-flex items-center rounded-full border border-gray-200 text-gray-400 bg-gray-50 px-2 py-0.5 text-xs font-medium">
+              {readingLabel}
+            </span>
+          </div>
+        </div>
+
+        {/* View mode toggle */}
+        <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1 w-fit mt-4">
+          <button
+            onClick={() => handleViewChange("default")}
+            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 cursor-pointer ${
+              viewMode === "default"
+                ? "bg-white text-green-700 shadow-sm"
+                : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+            }`}
           >
-            <TrendIcon className={`w-3 h-3 mr-1 ${trendColor}`} />
-            {trend > 0 ? "+" : ""}
-            {trend.toFixed(1)} cm trend
-          </Badge>
+            Default
+          </button>
+          <button
+            onClick={() => handleViewChange("hourly")}
+            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 cursor-pointer ${
+              viewMode === "hourly"
+                ? "bg-white text-green-700 shadow-sm"
+                : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+            }`}
+          >
+            Hourly
+          </button>
         </div>
-      </CardHeader>
+      </div>
 
-      <CardContent className="space-y-4">
-        {/* Bar chart */}
-        <div className="relative h-48 bg-green-50 rounded-lg border border-green-100 p-3">
-          {/* Grid lines */}
-          <div className="absolute inset-3 flex flex-col justify-between pointer-events-none">
-            {[0, 1, 2, 3].map((i) => (
-              <div key={i} className="w-full border-t border-green-100" />
-            ))}
+      {/* Chart content */}
+      <div className="px-6 pb-6 space-y-4">
+        {dataLength === 0 ? (
+          <div className="flex flex-col items-center justify-center h-48 text-gray-300">
+            <BarChart2 className="w-8 h-8 mb-2" />
+            <p className="text-sm">No data available</p>
           </div>
+        ) : (
+          <>
+            {needsScroll && (
+              <p className="text-xs text-gray-400 text-right pt-2">
+                ← Scroll horizontally to see all data →
+              </p>
+            )}
 
-          {/* Bars */}
-          <div className="relative h-full flex items-end gap-0.5">
-            {last24.map((record, index) => {
-              const normalized =
-                ((record.water_level_cm - minLevel) / range) * 100;
-              const date = new Date(record.ts * 1000);
-              const level = record.water_level_cm;
-
-              const barColor =
-                level > 300
-                  ? "bg-red-400"
-                  : level > 200
-                    ? "bg-orange-400"
-                    : level > 100
-                      ? "bg-yellow-400"
-                      : "bg-green-400";
-
-              return (
-                <div
-                  key={record.id || index}
-                  className="flex-1 flex flex-col items-center justify-end h-full group relative"
-                >
-                  {/* Tooltip */}
-                  <div className="absolute bottom-full mb-1 hidden group-hover:flex flex-col items-center z-10 pointer-events-none">
-                    <div className="bg-gray-700 text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg">
-                      {record.water_level_cm.toFixed(1)} cm
-                      <br />
-                      <span className="text-gray-300">
-                        {date.getHours()}:00
-                      </span>
-                    </div>
-                    <div className="w-1.5 h-1.5 bg-gray-700 rotate-45 -mt-0.5" />
-                  </div>
-
-                  <div
-                    className={`w-full ${barColor} rounded-t-sm transition-all duration-300 hover:brightness-110`}
-                    style={{ height: `${Math.max(normalized, 2)}%` }}
-                  />
-
-                  {index % 6 === 0 && (
-                    <span className="absolute -bottom-5 text-[10px] text-gray-400">
-                      {date.getHours()}:00
-                    </span>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
+            <div
+              className="overflow-x-auto pb-2 -mx-2 px-2"
+              style={{
+                scrollbarWidth: "thin",
+                scrollbarColor: "#d1d5db transparent",
+              }}
+            >
+              <div style={{ minWidth: `${chartWidth}px` }}>
+                <Chart
+                  options={chartOptions}
+                  series={series}
+                  type="line"
+                  height={280}
+                  width="100%"
+                />
+              </div>
+            </div>
+          </>
+        )}
 
         {/* Stats row */}
-        <div className="grid grid-cols-3 gap-2 pt-4">
-          {[
-            { label: "Max", value: maxLevel.toFixed(1), color: "text-red-500" },
-            {
-              label: "Avg",
-              value: avgLevel.toFixed(1),
-              color: "text-green-500",
-            },
-            {
-              label: "Min",
-              value: minLevel.toFixed(1),
-              color: "text-green-600",
-            },
-          ].map((stat) => (
-            <div
-              key={stat.label}
-              className="bg-green-50 rounded-md p-2.5 text-center border border-green-100"
-            >
-              <p className="text-xs text-gray-400 mb-0.5">{stat.label}</p>
-              <p className={`text-sm font-bold tabular-nums ${stat.color}`}>
-                {stat.value}{" "}
-                <span className="text-xs font-normal text-gray-400">cm</span>
-              </p>
-            </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+        {dataLength > 0 && (
+          <div className="grid grid-cols-3 gap-2 pt-2">
+            {[
+              {
+                label: "Max",
+                value: maxLevel.toFixed(1),
+                color: "text-red-500",
+              },
+              {
+                label: "Avg",
+                value: avgLevel.toFixed(1),
+                color: "text-green-500",
+              },
+              {
+                label: "Min",
+                value: minLevel.toFixed(1),
+                color: "text-green-600",
+              },
+            ].map((stat) => (
+              <div
+                key={stat.label}
+                className="bg-green-50 rounded-md p-2.5 text-center border border-green-100"
+              >
+                <p className="text-xs text-gray-400 mb-0.5">{stat.label}</p>
+                <p className={`text-sm font-bold tabular-nums ${stat.color}`}>
+                  {stat.value}{" "}
+                  <span className="text-xs font-normal text-gray-400">cm</span>
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

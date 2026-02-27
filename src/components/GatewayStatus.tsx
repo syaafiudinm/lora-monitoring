@@ -1,74 +1,91 @@
-import type { GatewayStatus as GatewayStatusType } from "../types";
-import { Activity, Wifi, CheckCircle, AlertCircle, Radio } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import type { Gateway as GatewayData } from "../types";
+import {
+  Activity,
+  Wifi,
+  CheckCircle,
+  AlertCircle,
+  Globe,
+  Clock,
+} from "lucide-react";
+import { formatIsoDateTime } from "@/lib/time";
 
 interface GatewayStatusProps {
-  gateway: GatewayStatusType | null;
-  isOnline: boolean;
+  gateway: GatewayData | null;
 }
 
-export function GatewayStatus({ gateway, isOnline }: GatewayStatusProps) {
+export function GatewayStatus({ gateway }: GatewayStatusProps) {
   if (!gateway) {
     return (
-      <Card className="bg-white border-green-100">
-        <CardContent className="pt-6">
+      <div className="bg-white border border-green-100 rounded-xl shadow-sm">
+        <div className="px-6 pt-6">
           <p className="text-gray-400">Loading gateway status...</p>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     );
   }
 
+  const isOnline = gateway.status === "ONLINE";
+
+  const lastSeen = formatIsoDateTime(
+    gateway.timestamp_iso,
+    gateway.timestamp_epoch,
+  );
+
+  const wifiStrength =
+    gateway.rssi_wifi !== undefined
+      ? gateway.rssi_wifi > -50
+        ? "Excellent"
+        : gateway.rssi_wifi > -60
+          ? "Good"
+          : gateway.rssi_wifi > -70
+            ? "Fair"
+            : "Weak"
+      : null;
+
   const stats = [
     {
-      label: "Gateway ID",
-      value: gateway.gateway_id ?? "—",
-      icon: <Radio className="w-4 h-4 text-green-500" />,
+      label: "Status",
+      value: gateway.status ?? "—",
+      icon: isOnline ? (
+        <CheckCircle className="w-4 h-4 text-green-500" />
+      ) : (
+        <AlertCircle className="w-4 h-4 text-red-500" />
+      ),
+      valueClass: isOnline ? "text-green-600" : "text-red-500",
+    },
+    {
+      label: "IP Address",
+      value: gateway.ip ?? "—",
+      icon: <Globe className="w-4 h-4 text-green-500" />,
       mono: true,
     },
     {
       label: "WiFi RSSI",
-      value: gateway.wifi_rssi !== undefined ? `${gateway.wifi_rssi} dBm` : "—",
+      value: gateway.rssi_wifi !== undefined ? `${gateway.rssi_wifi} dBm` : "—",
+      subtitle: wifiStrength,
       icon: <Wifi className="w-4 h-4 text-green-400" />,
     },
     {
       label: "Last Activity",
-      value:
-        gateway.last_activity !== undefined
-          ? `${gateway.last_activity}s ago`
-          : "—",
-      icon: <Activity className="w-4 h-4 text-green-600" />,
-    },
-    {
-      label: "Packets Received",
-      value:
-        gateway.total_received !== undefined
-          ? String(gateway.total_received)
-          : "—",
-      valueClass: "text-green-600",
-    },
-    {
-      label: "Failed Packets",
-      value:
-        gateway.total_failed !== undefined ? String(gateway.total_failed) : "—",
-      valueClass: "text-red-500",
+      value: lastSeen,
+      icon: <Clock className="w-4 h-4 text-green-600" />,
     },
   ];
 
   return (
-    <Card className="bg-white border-green-100 shadow-sm">
-      <CardHeader className="pb-3">
+    <div className="bg-white border border-green-100 rounded-xl shadow-sm">
+      <div className="px-6 pt-6 pb-3">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-base font-semibold text-gray-700">
+          <div className="text-base font-semibold text-gray-700 flex items-center gap-2">
+            <Activity className="w-4 h-4 text-green-500" />
             Gateway Status
-          </CardTitle>
-          <Badge
-            variant="outline"
-            className={
+          </div>
+          <span
+            className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium ${
               isOnline
                 ? "border-green-400 text-green-600 bg-green-50"
                 : "border-red-400 text-red-500 bg-red-50"
-            }
+            }`}
           >
             {isOnline ? (
               <CheckCircle className="w-3 h-3 mr-1.5" />
@@ -76,11 +93,11 @@ export function GatewayStatus({ gateway, isOnline }: GatewayStatusProps) {
               <AlertCircle className="w-3 h-3 mr-1.5" />
             )}
             {isOnline ? "Online" : "Offline"}
-          </Badge>
+          </span>
         </div>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+      </div>
+      <div className="px-6 pb-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {stats.map((stat) => (
             <div
               key={stat.label}
@@ -97,10 +114,13 @@ export function GatewayStatus({ gateway, isOnline }: GatewayStatusProps) {
               >
                 {stat.value}
               </p>
+              {stat.subtitle && (
+                <p className="text-xs text-gray-400 mt-0.5">{stat.subtitle}</p>
+              )}
             </div>
           ))}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

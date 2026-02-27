@@ -1,44 +1,90 @@
 {
-  "flood": {
-    "gateway": {
-      "status": {
-        "gateway_id": "GW_01",
-        "last_activity": 25,
-        "total_failed": 0,
-        "total_received": 2,
-        "wifi_rssi": -64
+  "gateway": {
+    "ip": "192.168.1.8",
+    "rssi_wifi": -42,
+    "status": "ONLINE",
+    "timestamp_epoch": 1772084191,
+    "timestamp_iso": "2026-02-26T05:36:31+07:00"
+  },
+  "nodes": {
+    "NODE_1": {
+      "history": {
+        "-OmLZsmJQAcMySBfe1vi": {
+          "rssi_dbm": -42,
+          "snr_db": 6.5,
+          "timestamp_epoch": 1772081577,
+          "timestamp_iso": "2026-02-26T04:52:57+07:00",
+          "water_level_cm": 299.80002
+        },
+        "-OmL_-U5ciYTFXoNfleX": {
+          "rssi_dbm": -43,
+          "snr_db": 8.25,
+          "timestamp_epoch": 1772081609,
+          "timestamp_iso": "2026-02-26T04:53:29+07:00",
+          "water_level_cm": 299.70001
+        },
+        "-OmL_7Fgn6C59jmpG2yW": {
+          "rssi_dbm": -44,
+          "snr_db": 8.25,
+          "timestamp_epoch": 1772081640,
+          "timestamp_iso": "2026-02-26T04:54:00+07:00",
+          "water_level_cm": 299.80002
+        },
+        "-OmL_FPUnM2XV1TylEKa": {
+          "rssi_dbm": -43,
+          "snr_db": 8.5,
+          "timestamp_epoch": 1772081672,
+          "timestamp_iso": "2026-02-26T04:54:32+07:00",
+          "water_level_cm": 299.60001
+        },
+        "-OmL_N-hMJ7chi76mcBe": {
+          "rssi_dbm": -43,
+          "snr_db": 9,
+          "timestamp_epoch": 1772081703,
+          "timestamp_iso": "2026-02-26T04:55:03+07:00",
+          "water_level_cm": 299.20001
+        },
+        "-OmLhE-x_NvhHqwv9n1b": {
+          "rssi_dbm": -42,
+          "snr_db": 7.5,
+          "timestamp_epoch": 1772083765,
+          "timestamp_iso": "2026-02-26T05:29:25+07:00",
+          "water_level_cm": 299.10001
+        }
+      },
+      "latest": {
+        "boot_count": 1,
+        "rssi_dbm": -42,
+        "snr_db": 7.5,
+        "timestamp_epoch": 1772083765,
+        "timestamp_iso": "2026-02-26T05:29:25+07:00",
+        "water_level_cm": 299.10001
       }
     },
-    "nodes": {
-      "N1": {
-        "history": {
-          "-OljzkA0mcJyN6mNjAT1": {
-            "rssi_gw": -44,
-            "snr_gw": 13.75,
-            "ts": 20,
-            "water_level_cm": 46.5
-          },
-          "-OljzlCAis2AmEHk9Fqr": {
-            "rssi_gw": -44,
-            "snr_gw": 13.25,
-            "ts": 24,
-            "water_level_cm": 50.1
-          },
-          "-Oljzt030gvC5LVgS_QF": {
-            "rssi_gw": -44,
-            "snr_gw": 12.5,
-            "ts": 55,
-            "water_level_cm": 47.4
-          }
+    "NODE_2": {
+      "history": {
+        "-OmLinJA4VzyvXtnsIOr": {
+          "rssi_dbm": -25,
+          "snr_db": 10.75,
+          "timestamp_epoch": 1772084176,
+          "timestamp_iso": "2026-02-26T05:36:16+07:00",
+          "water_level_cm": 259.80002
         },
-        "latest": {
-          "gateway_id": "GW_01",
-          "pkt_count": 4,
-          "rssi_gw": -44,
-          "snr_gw": 12.5,
-          "timestamp": 37,
-          "water_level_cm": 47.4
+        "-OmLirBWSYjcV6osle-l": {
+          "rssi_dbm": -34,
+          "snr_db": 9.75,
+          "timestamp_epoch": 1772084192,
+          "timestamp_iso": "2026-02-26T05:36:32+07:00",
+          "water_level_cm": 259.89999
         }
+      },
+      "latest": {
+        "packet_num": 4,
+        "rssi_dbm": -34,
+        "snr_db": 9.75,
+        "timestamp_epoch": 1772084192,
+        "timestamp_iso": "2026-02-26T05:36:32+07:00",
+        "water_level_cm": 259.89999
       }
     }
   }

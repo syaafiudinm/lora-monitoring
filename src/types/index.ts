@@ -1,41 +1,52 @@
-export interface WaterLevel {
-  gateway_id: string;
-  pkt_count: number;
-  rssi_gw: number;
-  snr_gw: number;
-  timestamp: number;
-  water_level_cm: number;
+// Matches the actual Firebase Realtime Database structure
+// from digides-lora-default-rtdb-export.json
+
+// --- Gateway ---
+
+export interface Gateway {
+  ip: string;
+  rssi_wifi: number;
+  status: "ONLINE" | "OFFLINE" | string;
+  timestamp_epoch: number;
+  timestamp_iso: string;
 }
 
-export interface Node {
-  history: Record<string, HistoryEntry>;
-  latest: WaterLevel;
-}
+// --- Node history entry (stored under nodes/<NODE_ID>/history/<push_id>) ---
 
-// History entries use `ts` not `timestamp`
 export interface HistoryEntry {
-  rssi_gw: number;
-  snr_gw: number;
-  ts: number;
+  rssi_dbm: number;
+  snr_db: number;
+  timestamp_epoch: number;
+  timestamp_iso: string;
   water_level_cm: number;
 }
 
+// History entry with its Firebase push-key id attached
 export interface HistoryRecord extends HistoryEntry {
   id: string;
 }
 
-// Firebase structure: gateway.status.{ gateway_id, ... }
-export interface GatewayStatus {
-  gateway_id: string;
-  last_activity: number;
-  total_failed: number;
-  total_received: number;
-  wifi_rssi: number;
+// --- Node latest reading (stored under nodes/<NODE_ID>/latest) ---
+
+export interface NodeLatest {
+  rssi_dbm: number;
+  snr_db: number;
+  timestamp_epoch: number;
+  timestamp_iso: string;
+  water_level_cm: number;
+  // Optional fields that vary per node
+  boot_count?: number;
+  packet_num?: number;
 }
 
-export interface Gateway {
-  status: GatewayStatus;
+// --- Full node object ---
+
+export interface Node {
+  history: Record<string, HistoryEntry>;
+  latest: NodeLatest;
 }
+
+// --- Root database shape ---
 
 export interface FloodData {
   gateway: Gateway;

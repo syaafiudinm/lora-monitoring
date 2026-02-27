@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/firebase.ts","./src/main.tsx","./src/vite-env.d.ts","./src/components/dashboard.tsx","./src/components/gatewaystatus.tsx","./src/components/historychart.tsx","./src/components/waterlevelcard.tsx","./src/lib/time.ts","./src/types/index.ts"],"version":"5.9.3"}
