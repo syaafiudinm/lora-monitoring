@@ -60,15 +60,15 @@ export function HistoryChart({ history, nodeId }: HistoryChartProps) {
 
       const existing = buckets.get(key);
       if (existing) {
-        existing.sum += r.water_level_cm;
-        existing.min = Math.min(existing.min, r.water_level_cm);
-        existing.max = Math.max(existing.max, r.water_level_cm);
+        existing.sum += r.wl_cm;
+        existing.min = Math.min(existing.min, r.wl_cm);
+        existing.max = Math.max(existing.max, r.wl_cm);
         existing.count += 1;
       } else {
         buckets.set(key, {
-          sum: r.water_level_cm,
-          min: r.water_level_cm,
-          max: r.water_level_cm,
+          sum: r.wl_cm,
+          min: r.wl_cm,
+          max: r.wl_cm,
           count: 1,
           date,
           hour,
@@ -113,7 +113,7 @@ export function HistoryChart({ history, nodeId }: HistoryChartProps) {
     if (viewMode === "hourly") {
       return hourlyData.map((d) => d.avg);
     }
-    return sortedHistory.map((r) => parseFloat(r.water_level_cm.toFixed(1)));
+    return sortedHistory.map((r) => parseFloat(r.wl_cm.toFixed(1)));
   }, [viewMode, hourlyData, sortedHistory]);
 
   const dataLength =
@@ -135,11 +135,10 @@ export function HistoryChart({ history, nodeId }: HistoryChartProps) {
     }
     if (sortedHistory.length === 0)
       return { maxLevel: 0, minLevel: 0, avgLevel: 0 };
-    const max = Math.max(...sortedHistory.map((h) => h.water_level_cm));
-    const min = Math.min(...sortedHistory.map((h) => h.water_level_cm));
+    const max = Math.max(...sortedHistory.map((h) => h.wl_cm));
+    const min = Math.min(...sortedHistory.map((h) => h.wl_cm));
     const avg =
-      sortedHistory.reduce((s, h) => s + h.water_level_cm, 0) /
-      sortedHistory.length;
+      sortedHistory.reduce((s, h) => s + h.wl_cm, 0) / sortedHistory.length;
     return {
       maxLevel: parseFloat(max.toFixed(1)),
       minLevel: parseFloat(min.toFixed(1)),
@@ -162,10 +161,9 @@ export function HistoryChart({ history, nodeId }: HistoryChartProps) {
     if (sortedHistory.length < 2) return 0;
     const mid = Math.floor(sortedHistory.length / 2);
     const firstAvg =
-      sortedHistory.slice(0, mid).reduce((s, h) => s + h.water_level_cm, 0) /
-      mid;
+      sortedHistory.slice(0, mid).reduce((s, h) => s + h.wl_cm, 0) / mid;
     const secondAvg =
-      sortedHistory.slice(mid).reduce((s, h) => s + h.water_level_cm, 0) /
+      sortedHistory.slice(mid).reduce((s, h) => s + h.wl_cm, 0) /
       (sortedHistory.length - mid);
     return secondAvg - firstAvg;
   }, [viewMode, hourlyData, sortedHistory]);

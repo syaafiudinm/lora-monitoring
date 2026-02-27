@@ -1,90 +1,149 @@
 {
   "gateway": {
     "ip": "192.168.1.8",
-    "rssi_wifi": -42,
+    "rssi_wifi": -28,
     "status": "ONLINE",
-    "timestamp_epoch": 1772084191,
-    "timestamp_iso": "2026-02-26T05:36:31+07:00"
+    "timestamp_epoch": 1772241004,
+    "timestamp_iso": "2026-02-28T01:10:04+08:00"
   },
   "nodes": {
     "NODE_1": {
       "history": {
-        "-OmLZsmJQAcMySBfe1vi": {
+        "-OmV40QgRFVsr-epA3My": {
+          "boot_count": 1,
+          "packet_num": 1,
           "rssi_dbm": -42,
-          "snr_db": 6.5,
-          "timestamp_epoch": 1772081577,
-          "timestamp_iso": "2026-02-26T04:52:57+07:00",
-          "water_level_cm": 299.80002
+          "snr_db": 11,
+          "timestamp_epoch": 1772240996,
+          "timestamp_iso": "2026-02-28T01:09:56+08:00",
+          "wl_cm": 87.9
         },
-        "-OmL_-U5ciYTFXoNfleX": {
-          "rssi_dbm": -43,
-          "snr_db": 8.25,
-          "timestamp_epoch": 1772081609,
-          "timestamp_iso": "2026-02-26T04:53:29+07:00",
-          "water_level_cm": 299.70001
-        },
-        "-OmL_7Fgn6C59jmpG2yW": {
-          "rssi_dbm": -44,
-          "snr_db": 8.25,
-          "timestamp_epoch": 1772081640,
-          "timestamp_iso": "2026-02-26T04:54:00+07:00",
-          "water_level_cm": 299.80002
-        },
-        "-OmL_FPUnM2XV1TylEKa": {
-          "rssi_dbm": -43,
-          "snr_db": 8.5,
-          "timestamp_epoch": 1772081672,
-          "timestamp_iso": "2026-02-26T04:54:32+07:00",
-          "water_level_cm": 299.60001
-        },
-        "-OmL_N-hMJ7chi76mcBe": {
-          "rssi_dbm": -43,
-          "snr_db": 9,
-          "timestamp_epoch": 1772081703,
-          "timestamp_iso": "2026-02-26T04:55:03+07:00",
-          "water_level_cm": 299.20001
-        },
-        "-OmLhE-x_NvhHqwv9n1b": {
-          "rssi_dbm": -42,
-          "snr_db": 7.5,
-          "timestamp_epoch": 1772083765,
-          "timestamp_iso": "2026-02-26T05:29:25+07:00",
-          "water_level_cm": 299.10001
+        "-OmV48X3jg9mWEgJ-4Vq": {
+          "boot_count": 2,
+          "packet_num": 2,
+          "rssi_dbm": -45,
+          "snr_db": 13.5,
+          "timestamp_epoch": 1772241029,
+          "timestamp_iso": "2026-02-28T01:10:29+08:00",
+          "wl_cm": 87.9
         }
       },
       "latest": {
-        "boot_count": 1,
-        "rssi_dbm": -42,
-        "snr_db": 7.5,
-        "timestamp_epoch": 1772083765,
-        "timestamp_iso": "2026-02-26T05:29:25+07:00",
-        "water_level_cm": 299.10001
+        "boot_count": 2,
+        "packet_num": 2,
+        "rssi_dbm": -45,
+        "snr_db": 13.5,
+        "timestamp_epoch": 1772241029,
+        "timestamp_iso": "2026-02-28T01:10:29+08:00",
+        "wl_cm": 87.9
       }
     },
     "NODE_2": {
       "history": {
-        "-OmLinJA4VzyvXtnsIOr": {
-          "rssi_dbm": -25,
-          "snr_db": 10.75,
-          "timestamp_epoch": 1772084176,
-          "timestamp_iso": "2026-02-26T05:36:16+07:00",
-          "water_level_cm": 259.80002
+        "-OmV3uKG3qBTyT-Bbyl9": {
+          "packet_num": 4,
+          "rssi_dbm": -30,
+          "snr_db": 13.25,
+          "timestamp_epoch": 1772240967,
+          "timestamp_iso": "2026-02-28T01:09:27+08:00",
+          "wl_cm": 56.8
         },
-        "-OmLirBWSYjcV6osle-l": {
-          "rssi_dbm": -34,
-          "snr_db": 9.75,
-          "timestamp_epoch": 1772084192,
-          "timestamp_iso": "2026-02-26T05:36:32+07:00",
-          "water_level_cm": 259.89999
+        "-OmV3vYfpdb6smrLJAXl": {
+          "packet_num": 5,
+          "rssi_dbm": -29,
+          "snr_db": 13.75,
+          "timestamp_epoch": 1772240972,
+          "timestamp_iso": "2026-02-28T01:09:32+08:00",
+          "wl_cm": 92.3
+        },
+        "-OmV3wkWzT6EBeGbgnjH": {
+          "packet_num": 6,
+          "rssi_dbm": -29,
+          "snr_db": 13.25,
+          "timestamp_epoch": 1772240977,
+          "timestamp_iso": "2026-02-28T01:09:37+08:00",
+          "wl_cm": 92
+        },
+        "-OmV3xytPssVrZj-UQeq": {
+          "packet_num": 7,
+          "rssi_dbm": -29,
+          "snr_db": 13.25,
+          "timestamp_epoch": 1772240982,
+          "timestamp_iso": "2026-02-28T01:09:42+08:00",
+          "wl_cm": 92.1
+        },
+        "-OmV3zDrQDXR2mIG27jl": {
+          "packet_num": 8,
+          "rssi_dbm": -29,
+          "snr_db": 13.25,
+          "timestamp_epoch": 1772240987,
+          "timestamp_iso": "2026-02-28T01:09:47+08:00",
+          "wl_cm": 92.6
+        },
+        "-OmV4-QeQTqQDJtfiCXj": {
+          "packet_num": 9,
+          "rssi_dbm": -30,
+          "snr_db": 11.75,
+          "timestamp_epoch": 1772240992,
+          "timestamp_iso": "2026-02-28T01:09:52+08:00",
+          "wl_cm": 92.2
+        },
+        "-OmV41sTnixF2Q44Wiav": {
+          "packet_num": 11,
+          "rssi_dbm": -28,
+          "snr_db": 13.25,
+          "timestamp_epoch": 1772241002,
+          "timestamp_iso": "2026-02-28T01:10:02+08:00",
+          "wl_cm": 91.8
+        },
+        "-OmV434HedvnMkmMcM6f": {
+          "packet_num": 12,
+          "rssi_dbm": -29,
+          "snr_db": 13.75,
+          "timestamp_epoch": 1772241007,
+          "timestamp_iso": "2026-02-28T01:10:07+08:00",
+          "wl_cm": 92.2
+        },
+        "-OmV44IfLg1b1MmyKydU": {
+          "packet_num": 13,
+          "rssi_dbm": -29,
+          "snr_db": 12.5,
+          "timestamp_epoch": 1772241012,
+          "timestamp_iso": "2026-02-28T01:10:12+08:00",
+          "wl_cm": 91.9
+        },
+        "-OmV45X4l2LuMv_2Amle": {
+          "packet_num": 14,
+          "rssi_dbm": -29,
+          "snr_db": 13.25,
+          "timestamp_epoch": 1772241017,
+          "timestamp_iso": "2026-02-28T01:10:17+08:00",
+          "wl_cm": 92.1
+        },
+        "-OmV46kSPbnWW3mM4D32": {
+          "packet_num": 15,
+          "rssi_dbm": -30,
+          "snr_db": 13.5,
+          "timestamp_epoch": 1772241022,
+          "timestamp_iso": "2026-02-28T01:10:22+08:00",
+          "wl_cm": 92.2
+        },
+        "-OmV47ytLwblSS2Sx8Ph": {
+          "packet_num": 16,
+          "rssi_dbm": -30,
+          "snr_db": 12.75,
+          "timestamp_epoch": 1772241027,
+          "timestamp_iso": "2026-02-28T01:10:27+08:00",
+          "wl_cm": 92.1
         }
       },
       "latest": {
-        "packet_num": 4,
-        "rssi_dbm": -34,
-        "snr_db": 9.75,
-        "timestamp_epoch": 1772084192,
-        "timestamp_iso": "2026-02-26T05:36:32+07:00",
-        "water_level_cm": 259.89999
+        "packet_num": 16,
+        "rssi_dbm": -30,
+        "snr_db": 12.75,
+        "timestamp_epoch": 1772241027,
+        "timestamp_iso": "2026-02-28T01:10:27+08:00",
+        "wl_cm": 92.1
       }
     }
   }

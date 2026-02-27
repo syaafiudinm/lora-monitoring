@@ -48,11 +48,11 @@ function getStatus(level: number): keyof typeof STATUS_CONFIG {
 
 export function WaterLevelCard({ data, nodeId }: WaterLevelCardProps) {
   const animationKey = useMemo(
-    () => (data ? `${data.timestamp_epoch}-${data.water_level_cm}` : "empty"),
+    () => (data ? `${data.timestamp_epoch}-${data.wl_cm}` : "empty"),
     [data],
   );
 
-  if (!data || typeof data !== "object" || !("water_level_cm" in data)) {
+  if (!data || typeof data !== "object" || !("wl_cm" in data)) {
     return (
       <div className="bg-white border border-green-100 rounded-xl shadow-sm">
         <div className="px-6 pt-6">
@@ -62,7 +62,7 @@ export function WaterLevelCard({ data, nodeId }: WaterLevelCardProps) {
     );
   }
 
-  const statusKey = getStatus(data.water_level_cm);
+  const statusKey = getStatus(data.wl_cm);
   const cfg = STATUS_CONFIG[statusKey];
 
   const formattedDate = formatIsoDateTime(
@@ -70,7 +70,7 @@ export function WaterLevelCard({ data, nodeId }: WaterLevelCardProps) {
     data.timestamp_epoch,
   );
 
-  const progressValue = Math.min((data.water_level_cm / 400) * 100, 100);
+  const progressValue = Math.min((data.wl_cm / 400) * 100, 100);
 
   const packetLabel = data.boot_count !== undefined ? "Boot Count" : "Packets";
   const packetValue = data.boot_count ?? data.packet_num;
@@ -100,7 +100,7 @@ export function WaterLevelCard({ data, nodeId }: WaterLevelCardProps) {
         {/* Big number */}
         <div>
           <span className={`text-6xl font-black tabular-nums ${cfg.color}`}>
-            {data.water_level_cm.toFixed(1)}
+            {data.wl_cm.toFixed(1)}
           </span>
           <span className="text-gray-400 text-lg font-medium ml-2">cm</span>
         </div>

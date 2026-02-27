@@ -18,7 +18,10 @@ export interface HistoryEntry {
   snr_db: number;
   timestamp_epoch: number;
   timestamp_iso: string;
-  water_level_cm: number;
+  wl_cm: number;
+  // Optional fields that vary per node
+  boot_count?: number;
+  packet_num?: number;
 }
 
 // History entry with its Firebase push-key id attached
@@ -33,7 +36,7 @@ export interface NodeLatest {
   snr_db: number;
   timestamp_epoch: number;
   timestamp_iso: string;
-  water_level_cm: number;
+  wl_cm: number;
   // Optional fields that vary per node
   boot_count?: number;
   packet_num?: number;
