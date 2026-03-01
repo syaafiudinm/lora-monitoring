@@ -237,27 +237,6 @@ export function Dashboard() {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            {gateway && (
-              <span
-                className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium ${
-                  isOnline
-                    ? "border-green-400 text-green-600 bg-green-50"
-                    : "border-red-400 text-red-500 bg-red-50"
-                }`}
-              >
-                <span
-                  className={`w-1.5 h-1.5 rounded-full mr-2 ${isOnline ? "bg-green-500 animate-pulse" : "bg-red-500"}`}
-                />
-                Gateway {isOnline ? "Online" : "Offline"}
-              </span>
-            )}
-            {lastUpdate && (
-              <span className="text-xs text-gray-400">
-                Updated {lastUpdate.toLocaleTimeString()}
-              </span>
-            )}
-          </div>
         </div>
       </header>
 
