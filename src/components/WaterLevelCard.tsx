@@ -9,29 +9,22 @@ interface WaterLevelCardProps {
 }
 
 const STATUS_CONFIG = {
-  CRITICAL: {
-    label: "Critical",
+  BAHAYA: {
+    label: "Bahaya",
     color: "text-red-500",
     border: "border-red-200",
     badge: "border-red-300 text-red-500 bg-red-50",
     progress: "bg-red-500",
   },
-  WARNING: {
-    label: "Warning",
+  SIAGA: {
+    label: "Siaga",
     color: "text-orange-500",
     border: "border-orange-200",
     badge: "border-orange-300 text-orange-500 bg-orange-50",
     progress: "bg-orange-500",
   },
-  MODERATE: {
-    label: "Moderate",
-    color: "text-yellow-500",
-    border: "border-yellow-200",
-    badge: "border-yellow-300 text-yellow-500 bg-yellow-50",
-    progress: "bg-yellow-500",
-  },
-  NORMAL: {
-    label: "Normal",
+  AMAN: {
+    label: "Aman",
     color: "text-green-500",
     border: "border-green-200",
     badge: "border-green-300 text-green-600 bg-green-50",
@@ -40,10 +33,9 @@ const STATUS_CONFIG = {
 } as const;
 
 function getStatus(level: number): keyof typeof STATUS_CONFIG {
-  if (level < 50) return "CRITICAL";
-  if (level < 200) return "WARNING";
-  if (level > 300) return "MODERATE";
-  return "NORMAL";
+  if (level <= 20) return "BAHAYA";
+  if (level <= 40) return "SIAGA";
+  return "AMAN";
 }
 
 export function WaterLevelCard({ data, nodeId }: WaterLevelCardProps) {
@@ -56,7 +48,7 @@ export function WaterLevelCard({ data, nodeId }: WaterLevelCardProps) {
     return (
       <div className="bg-white border border-green-100 rounded-xl shadow-sm">
         <div className="px-6 pt-6">
-          <p className="text-gray-400 text-sm">No data available</p>
+          <p className="text-gray-400 text-sm">Data tidak tersedia</p>
         </div>
       </div>
     );
@@ -70,9 +62,9 @@ export function WaterLevelCard({ data, nodeId }: WaterLevelCardProps) {
     data.timestamp_epoch,
   );
 
-  const progressValue = Math.min((data.wl_cm / 400) * 100, 100);
+  const progressValue = Math.min((data.wl_cm / 300) * 100, 100);
 
-  const packetLabel = data.boot_count !== undefined ? "Boot Count" : "Packets";
+  const packetLabel = data.boot_count !== undefined ? "Boot Count" : "Paket";
   const packetValue = data.boot_count ?? data.packet_num;
 
   return (
@@ -114,7 +106,7 @@ export function WaterLevelCard({ data, nodeId }: WaterLevelCardProps) {
             />
           </div>
           <p className="text-xs text-gray-400 text-right">
-            {progressValue.toFixed(0)}% of 400cm max
+            {progressValue.toFixed(0)}% dari 300 cm maks
           </p>
         </div>
 
@@ -123,7 +115,7 @@ export function WaterLevelCard({ data, nodeId }: WaterLevelCardProps) {
           <div className="bg-green-50 rounded-md p-2.5 flex items-center gap-2 border border-green-100">
             <Signal className="w-3.5 h-3.5 text-green-500 shrink-0" />
             <div>
-              <p className="text-xs text-gray-400">RSSI</p>
+              <p className="text-xs text-gray-400">Kekuatan Sinyal</p>
               <p className="text-sm font-semibold text-gray-700">
                 {data.rssi_dbm} dBm
               </p>
@@ -133,7 +125,7 @@ export function WaterLevelCard({ data, nodeId }: WaterLevelCardProps) {
           <div className="bg-green-50 rounded-md p-2.5 flex items-center gap-2 border border-green-100">
             <Zap className="w-3.5 h-3.5 text-green-500 shrink-0" />
             <div>
-              <p className="text-xs text-gray-400">SNR</p>
+              <p className="text-xs text-gray-400">Kualitas Sinyal</p>
               <p className="text-sm font-semibold text-gray-700">
                 {data.snr_db} dB
               </p>
@@ -157,7 +149,7 @@ export function WaterLevelCard({ data, nodeId }: WaterLevelCardProps) {
           >
             <Clock className="w-3.5 h-3.5 text-green-400 shrink-0" />
             <div>
-              <p className="text-xs text-gray-400">Last Update</p>
+              <p className="text-xs text-gray-400">Terakhir Diperbarui</p>
               <p className="text-xs font-medium text-gray-600">
                 {formattedDate}
               </p>

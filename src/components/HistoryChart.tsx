@@ -265,9 +265,9 @@ export function HistoryChart({ history, nodeId }: HistoryChartProps) {
                 return `
                   <div style="padding: 8px 12px; font-size: 12px; line-height: 1.6;">
                     <div style="font-weight: 600; margin-bottom: 4px;">${point.label}</div>
-                    <div>Avg: <b>${point.avg} cm</b></div>
-                    <div>Min: ${point.min} cm · Max: ${point.max} cm</div>
-                    <div style="color: #9ca3af; margin-top: 2px;">${point.count} reading${point.count > 1 ? "s" : ""}</div>
+                    <div>Rata²: <b>${point.avg} cm</b></div>
+                    <div>Min: ${point.min} cm · Maks: ${point.max} cm</div>
+                    <div style="color: #9ca3af; margin-top: 2px;">${point.count} data</div>
                   </div>
                 `;
               },
@@ -285,7 +285,7 @@ export function HistoryChart({ history, nodeId }: HistoryChartProps) {
   const series = useMemo(
     () => [
       {
-        name: viewMode === "hourly" ? "Avg Water Level" : "Water Level",
+        name: viewMode === "hourly" ? "Rata² Level Air" : "Level Air",
         data: seriesData,
       },
     ],
@@ -299,7 +299,7 @@ export function HistoryChart({ history, nodeId }: HistoryChartProps) {
         <div className="px-6 pt-6 pb-6">
           <div className="flex flex-col items-center justify-center h-32 text-gray-300">
             <BarChart2 className="w-8 h-8 mb-2" />
-            <p className="text-sm">No history data available</p>
+            <p className="text-sm">Tidak ada data riwayat</p>
           </div>
         </div>
       </div>
@@ -317,14 +317,12 @@ export function HistoryChart({ history, nodeId }: HistoryChartProps) {
   const needsScroll = chartWidth > MIN_CHART_WIDTH;
 
   const subtitle =
-    viewMode === "hourly"
-      ? "Hourly average water level"
-      : "Water level history over time";
+    viewMode === "hourly" ? "Rata-rata level air per jam" : "Riwayat level air";
 
   const readingLabel =
     viewMode === "hourly"
-      ? `${hourlyData.length} hours · ${history.length} readings`
-      : `${history.length} readings`;
+      ? `${hourlyData.length} jam · ${history.length} data`
+      : `${history.length} data`;
 
   return (
     <div className="bg-white border border-green-100 shadow-md rounded-xl">
@@ -343,7 +341,7 @@ export function HistoryChart({ history, nodeId }: HistoryChartProps) {
             <span className="inline-flex items-center rounded-full border border-green-200 text-gray-500 bg-green-50 px-2 py-0.5 text-xs font-medium w-fit">
               <TrendIcon className={`w-3 h-3 mr-1 ${trendColor}`} />
               {trend > 0 ? "+" : ""}
-              {trend.toFixed(1)} cm trend
+              {trend.toFixed(1)} cm tren
             </span>
             <span className="inline-flex items-center rounded-full border border-gray-200 text-gray-400 bg-gray-50 px-2 py-0.5 text-xs font-medium">
               {readingLabel}
@@ -361,7 +359,7 @@ export function HistoryChart({ history, nodeId }: HistoryChartProps) {
                 : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
             }`}
           >
-            Default
+            Semua
           </button>
           <button
             onClick={() => handleViewChange("hourly")}
@@ -371,7 +369,7 @@ export function HistoryChart({ history, nodeId }: HistoryChartProps) {
                 : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
             }`}
           >
-            Hourly
+            Per Jam
           </button>
         </div>
       </div>
@@ -381,13 +379,13 @@ export function HistoryChart({ history, nodeId }: HistoryChartProps) {
         {dataLength === 0 ? (
           <div className="flex flex-col items-center justify-center h-48 text-gray-300">
             <BarChart2 className="w-8 h-8 mb-2" />
-            <p className="text-sm">No data available</p>
+            <p className="text-sm">Tidak ada data</p>
           </div>
         ) : (
           <>
             {needsScroll && (
               <p className="text-xs text-gray-400 text-right pt-2">
-                ← Scroll horizontally to see all data →
+                ← Geser untuk melihat semua data →
               </p>
             )}
 
@@ -416,12 +414,12 @@ export function HistoryChart({ history, nodeId }: HistoryChartProps) {
           <div className="grid grid-cols-3 gap-2 pt-2">
             {[
               {
-                label: "Max",
+                label: "Maks",
                 value: maxLevel.toFixed(1),
                 color: "text-red-500",
               },
               {
-                label: "Avg",
+                label: "Rata²",
                 value: avgLevel.toFixed(1),
                 color: "text-green-500",
               },

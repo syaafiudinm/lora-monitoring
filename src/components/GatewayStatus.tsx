@@ -26,7 +26,7 @@ export function GatewayStatus({ gateway }: GatewayStatusProps) {
     return (
       <div className="bg-white border border-green-100 rounded-xl shadow-sm">
         <div className="px-6 pt-6">
-          <p className="text-gray-400">Loading gateway status...</p>
+          <p className="text-gray-400">Memuat status gateway...</p>
         </div>
       </div>
     );
@@ -42,12 +42,12 @@ export function GatewayStatus({ gateway }: GatewayStatusProps) {
   const wifiStrength =
     gateway.rssi_wifi !== undefined
       ? gateway.rssi_wifi > -50
-        ? "Excellent"
+        ? "Sangat Baik"
         : gateway.rssi_wifi > -60
-          ? "Good"
+          ? "Baik"
           : gateway.rssi_wifi > -70
-            ? "Fair"
-            : "Weak"
+            ? "Cukup"
+            : "Lemah"
       : null;
 
   const stats = [
@@ -62,19 +62,19 @@ export function GatewayStatus({ gateway }: GatewayStatusProps) {
       valueClass: isOnline ? "text-green-600" : "text-red-500",
     },
     {
-      label: "IP Address",
+      label: "Alamat IP",
       value: gateway.ip ?? "—",
       icon: <Globe className="w-4 h-4 text-green-500" />,
       mono: true,
     },
     {
-      label: "WiFi RSSI",
+      label: "Kekuatan WiFi",
       value: gateway.rssi_wifi !== undefined ? `${gateway.rssi_wifi} dBm` : "—",
       subtitle: wifiStrength,
       icon: <Wifi className="w-4 h-4 text-green-400" />,
     },
     {
-      label: "Last Activity",
+      label: "Aktivitas Terakhir",
       value: lastSeen,
       icon: <Clock className="w-4 h-4 text-green-600" />,
     },
@@ -86,7 +86,7 @@ export function GatewayStatus({ gateway }: GatewayStatusProps) {
         <div className="flex items-center justify-between">
           <div className="text-base font-semibold text-gray-700 flex items-center gap-2">
             <Activity className="w-4 h-4 text-green-500" />
-            Gateway Status
+            Status Gateway
           </div>
           <span
             className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium ${

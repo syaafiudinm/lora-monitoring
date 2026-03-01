@@ -188,7 +188,7 @@ export function Dashboard() {
         <div className="text-center space-y-4">
           <RefreshCw className="w-16 h-16 text-green-500 animate-spin mx-auto" />
           <p className="text-green-700 text-lg font-medium tracking-wide">
-            Connecting to Firebase...
+            Menghubungkan ke Firebase...
           </p>
         </div>
       </div>
@@ -202,7 +202,7 @@ export function Dashboard() {
           <AlertTriangle className="w-14 h-14 text-red-500 mx-auto" />
           <p className="text-red-500 text-lg font-semibold">{error}</p>
           <p className="text-gray-400 text-sm">
-            Check your Firebase configuration
+            Periksa konfigurasi Firebase Anda
           </p>
         </div>
       </div>
@@ -227,7 +227,7 @@ export function Dashboard() {
                 LoRa Monitoring
               </h1>
               <p className="text-xs text-gray-400">
-                LoRa Sensor Monitoring System
+                Sistem Pemantauan Ketinggian Air
               </p>
             </div>
           </div>
@@ -245,7 +245,7 @@ export function Dashboard() {
         <hr className="border-green-100" />
 
         <section>
-          <SectionLabel label="Live Water Levels" />
+          <SectionLabel label="Level Air Terkini" />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-5">
             {nodeEntries.map(([nodeId, state]) => (
               <WaterLevelCard
@@ -260,7 +260,7 @@ export function Dashboard() {
         <hr className="border-green-100" />
 
         <section>
-          <SectionLabel label="History" />
+          <SectionLabel label="Riwayat" />
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
             {nodeEntries.map(([nodeId, state]) => (
               <HistoryChart
