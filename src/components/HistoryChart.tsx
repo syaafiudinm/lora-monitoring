@@ -21,9 +21,6 @@ interface HourlyDataPoint {
   sortKey: string;
 }
 
-const MIN_PX_PER_POINT = 60;
-const MIN_CHART_WIDTH = 400;
-
 export function HistoryChart({ history, nodeId }: HistoryChartProps) {
   const [viewMode, setViewMode] = useState<ViewMode>("default");
 
@@ -168,20 +165,32 @@ export function HistoryChart({ history, nodeId }: HistoryChartProps) {
     return secondAvg - firstAvg;
   }, [viewMode, hourlyData, sortedHistory]);
 
-  // Chart width
-  const chartWidth = useMemo(() => {
-    const calculated = dataLength * MIN_PX_PER_POINT;
-    return Math.max(calculated, MIN_CHART_WIDTH);
-  }, [dataLength]);
-
   // Chart options
   const chartOptions = useMemo<ApexOptions>(
     () => ({
       chart: {
         type: "line",
-        height: 280,
-        toolbar: { show: false },
-        zoom: { enabled: false },
+        height: 300,
+        toolbar: {
+          show: true,
+          offsetX: 0,
+          offsetY: -8,
+          tools: {
+            download: false,
+            selection: true,
+            zoom: true,
+            zoomin: true,
+            zoomout: true,
+            pan: true,
+            reset: true,
+          },
+          autoSelected: "zoom",
+        },
+        zoom: {
+          enabled: true,
+          type: "x",
+          autoScaleYaxis: true,
+        },
         fontFamily: "inherit",
         animations: {
           enabled: true,
@@ -206,6 +215,7 @@ export function HistoryChart({ history, nodeId }: HistoryChartProps) {
         axisTicks: { show: false },
         axisBorder: { show: false },
         labels: {
+          show: dataLength <= 40,
           style: {
             colors: "#616161",
             fontSize: "11px",
@@ -219,9 +229,6 @@ export function HistoryChart({ history, nodeId }: HistoryChartProps) {
         tooltip: { enabled: false },
       },
       yaxis: {
-        min: 0,
-        max: 300,
-        tickAmount: 5,
         labels: {
           style: {
             colors: "#616161",
@@ -229,7 +236,7 @@ export function HistoryChart({ history, nodeId }: HistoryChartProps) {
             fontFamily: "inherit",
             fontWeight: 400,
           },
-          formatter: (val: number) => `${val.toFixed(0)}`,
+          formatter: (val: number) => `${val.toFixed(1)}`,
         },
         title: {
           text: "cm",
@@ -251,6 +258,9 @@ export function HistoryChart({ history, nodeId }: HistoryChartProps) {
       tooltip:
         viewMode === "hourly"
           ? {
+              enabled: true,
+              shared: true,
+              intersect: false,
               theme: "dark",
               custom: ({
                 dataPointIndex,
@@ -273,9 +283,18 @@ export function HistoryChart({ history, nodeId }: HistoryChartProps) {
               },
             }
           : {
+              enabled: true,
+              shared: true,
+              intersect: false,
               theme: "dark",
+              x: {
+                show: true,
+              },
               y: {
                 formatter: (val: number) => `${val.toFixed(1)} cm`,
+              },
+              marker: {
+                show: true,
               },
             },
     }),
@@ -313,8 +332,6 @@ export function HistoryChart({ history, nodeId }: HistoryChartProps) {
       : trend < -2
         ? "text-green-500"
         : "text-gray-400";
-
-  const needsScroll = chartWidth > MIN_CHART_WIDTH;
 
   const subtitle =
     viewMode === "hourly" ? "Rata-rata level air per jam" : "Riwayat level air";
@@ -382,31 +399,15 @@ export function HistoryChart({ history, nodeId }: HistoryChartProps) {
             <p className="text-sm">Tidak ada data</p>
           </div>
         ) : (
-          <>
-            {needsScroll && (
-              <p className="text-xs text-gray-400 text-right pt-2">
-                ← Geser untuk melihat semua data →
-              </p>
-            )}
-
-            <div
-              className="overflow-x-auto pb-2 -mx-2 px-2"
-              style={{
-                scrollbarWidth: "thin",
-                scrollbarColor: "#d1d5db transparent",
-              }}
-            >
-              <div style={{ minWidth: `${chartWidth}px` }}>
-                <Chart
-                  options={chartOptions}
-                  series={series}
-                  type="line"
-                  height={280}
-                  width="100%"
-                />
-              </div>
-            </div>
-          </>
+          <div className="pt-2">
+            <Chart
+              options={chartOptions}
+              series={series}
+              type="line"
+              height={300}
+              width="100%"
+            />
+          </div>
         )}
 
         {/* Stats row */}
